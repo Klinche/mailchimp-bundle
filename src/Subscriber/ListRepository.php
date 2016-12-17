@@ -315,7 +315,7 @@ class ListRepository
      */
     public function getMergeFields($listId)
     {
-        $result = $this->mailchimp->get("lists/$listId/merge-fields");
+        $result = $this->mailchimp->get("lists/$listId/merge-fields", array('count' => 30));
 
         if(!$this->mailchimp->success()){
             throw new \RuntimeException($this->mailchimp->getLastError());
