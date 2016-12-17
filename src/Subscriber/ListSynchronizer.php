@@ -82,6 +82,9 @@ class ListSynchronizer
 
         foreach ($mergeFields as $tag) {
             if ($tagId = $this->tagExists($tag['tag'], $mailChimpMergeFields)) {
+                if (isset($tag['options']) && isset($tag['options']['choices']) && count($tag['options']['choices']) === 0) {
+                    unset($tag['options']['choices']);
+                }
                 // update mergeField in mailChimp
                 $this->listRepository->updateMergeField($listId, $tagId, $tag);
             } else {
