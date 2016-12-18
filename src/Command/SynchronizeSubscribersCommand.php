@@ -100,10 +100,12 @@ class SynchronizeSubscribersCommand extends ContainerAwareCommand
      * @return String
      */
     private function displayBatchInfo($batch){
-        if($batch['status'] == 'finished'){
-            return sprintf('batch %s is finished, operations %d/%d with %d errors. http responses: %s', $batch['id'], $batch['finished_operations'], $batch['total_operations'], $batch['errored_operations'], $batch['response_body_url']);
-        }else{
-            return sprintf('batch %s, current status %s, operations %d/%d with %d errors', $batch['id'], $batch['status'], $batch['finished_operations'], $batch['total_operations'], $batch['errored_operations']);
+        if (isset($batch['status'])) {
+            if($batch['status'] == 'finished'){
+                return sprintf('batch %s is finished, operations %d/%d with %d errors. http responses: %s', $batch['id'], $batch['finished_operations'], $batch['total_operations'], $batch['errored_operations'], $batch['response_body_url']);
+            }else{
+                return sprintf('batch %s, current status %s, operations %d/%d with %d errors', $batch['id'], $batch['status'], $batch['finished_operations'], $batch['total_operations'], $batch['errored_operations']);
+            }
         }
     }
 
