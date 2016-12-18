@@ -87,7 +87,7 @@ class SynchronizeSubscribersCommand extends ContainerAwareCommand
     private function batchesFinished($batchesResult){
         $allfinished = true;
         foreach ($batchesResult as $key => $batch) {
-            if($batch['status'] != 'finished'){
+            if(!isset($batch['status']) || $batch['status'] != 'finished'){
                 $allfinished = false;
             }
         }
