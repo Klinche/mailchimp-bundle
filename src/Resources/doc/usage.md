@@ -15,6 +15,10 @@ NOTE: MailChimp provide two default merge fields:
 * FNAME: Firstname
 * LNAME: Lastname
 
+**Known issues with MailChimp API V3 - 17/12/2016**
+
+* When you try to synchronize merge fields with choice type, the API doesn't handle update of choice fields... It returns an error 400. Workaround: you have to remove all your choice type merge fields from your list throught the MailChimp Admin panel and retry synchronize with the command.
+
 ## Full synchronization with command
 
 You can synchronize all subscribers of your project at once by calling the Symfony command `php app/console welp:mailchimp:synchronize-subscribers`.
@@ -30,6 +34,8 @@ If you want realtime synchronization, you can dispatch custom events on your con
 
     SubscriberEvent::EVENT_SUBSCRIBE = 'welp.mailchimp.subscribe';
     SubscriberEvent::EVENT_UNSUBSCRIBE = 'welp.mailchimp.unsubscribe';
+    SubscriberEvent::EVENT_PENDING = 'welp.mailchimp.pending';
+    SubscriberEvent::EVENT_CLEAN = 'welp.mailchimp.clean';
     SubscriberEvent::EVENT_UPDATE = 'welp.mailchimp.update';
     SubscriberEvent::EVENT_CHANGE_EMAIL = 'welp.mailchimp.change_email';
     SubscriberEvent::EVENT_DELETE = 'welp.mailchimp.delete';
@@ -65,7 +71,7 @@ public function newUser(User $user)
 
 ### Unsubscribe a User
 
-Unsubscribe is simpler, you only need the email, all merge fields will be ignored:
+Here is an example of unsubscribe event dispatch:
 
 ```php
 <?php
@@ -83,6 +89,64 @@ public function unsubscribeUser(User $user)
 
     $this->container->get('event_dispatcher')->dispatch(
         SubscriberEvent::EVENT_UNSUBSCRIBE,
+        new SubscriberEvent('your_list_id', $subscriber)
+    );
+}
+```
+
+### Pending a User
+
+Here is an example of pending event dispatch:
+
+```php
+<?php
+
+use Welp\MailchimpBundle\Event\SubscriberEvent;
+use Welp\MailchimpBundle\Subscriber\Subscriber;
+
+// ...
+
+public function pendingUser(User $user)
+{
+    // ...
+
+    $subscriber = new Subscriber($user->getEmail(), [
+		'FIRSTNAME' => $user->getFirstname(),
+	], [
+        'language' => 'fr'
+    ]);
+
+	$this->container->get('event_dispatcher')->dispatch(
+        SubscriberEvent::EVENT_PENDING,
+        new SubscriberEvent('your_list_id', $subscriber)
+    );
+}
+```
+
+### Clean a User
+
+Here is an example of clean event dispatch:
+
+```php
+<?php
+
+use Welp\MailchimpBundle\Event\SubscriberEvent;
+use Welp\MailchimpBundle\Subscriber\Subscriber;
+
+// ...
+
+public function cleanUser(User $user)
+{
+    // ...
+
+    $subscriber = new Subscriber($user->getEmail(), [
+		'FIRSTNAME' => $user->getFirstname(),
+	], [
+        'language' => 'fr'
+    ]);
+
+	$this->container->get('event_dispatcher')->dispatch(
+        SubscriberEvent::EVENT_CLEAN,
         new SubscriberEvent('your_list_id', $subscriber)
     );
 }
